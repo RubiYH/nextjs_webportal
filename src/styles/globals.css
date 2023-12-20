@@ -3,6 +3,30 @@
   --searchInputRadius: 20px;
   --searchInputIconHeight: 2.5rem;
   --searchInputListsBackground: rgb(255, 255, 255);
+  --naver-color: #02cf5c;
+  --google-color: #4285f5;
+}
+
+.customScrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.customScrollbar::-webkit-scrollbar-thumb {
+  border-radius: 24px;
+  background: rgba(0, 0, 0, 0.15);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+.customScrollbar::-webkit-scrollbar-button:vertical:start:decrement,
+.customScrollbar::-webkit-scrollbar-button:vertical:start:increment {
+  display: block;
+  height: calc(var(--searchInputRadius) / 2);
+}
+
+.customScrollbar::-webkit-scrollbar-button:vertical:end:decrement {
+  display: block;
+  height: calc(var(--searchInputRadius) / 2);
 }
 
 /*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */

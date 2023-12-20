@@ -1,8 +1,10 @@
 import styles from "@/styles/Home.module.css";
-import { Google, Search } from "@mui/icons-material";
+import { HourglassEmptyOutlined, Search } from "@mui/icons-material";
 import { useMemo, useRef, useState } from "react";
 import { Button, Fade, IconButton, Menu, MenuItem } from "@mui/material";
 import { debounce } from "lodash";
+import Link from "next/link";
+import dayjs from "dayjs";
 
 export default function Home() {
   const [searchEngineType, setSearchEngineType] = useState<String>("google");
@@ -10,34 +12,40 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState(String || null);
 
   interface GoogleSearchResults {
-    cacheId?: String;
-    displayLink?: String;
-    formattedUrl?: String;
-    htmlFormattedUrl?: String;
-    htmlSnippet?: String;
-    htmlTitle?: String;
-    kind?: String;
-    link?: String;
+    cacheId?: string;
+    displayLink?: string;
+    formattedUrl?: string;
+    htmlFormattedUrl?: string;
+    htmlSnippet?: string;
+    htmlTitle?: string;
+    kind?: string;
+    link?: string;
     pagemap?: Object;
-    snippet?: String;
-    title?: String;
+    snippet?: string;
+    title?: string;
+    error?: Object;
   }
 
   interface NaverSearchResults {
-    bloggerlink?: String;
-    bloggername?: String;
-    description?: String;
-    link?: String;
-    postdate?: String;
-    title?: String;
+    bloggerlink?: string;
+    bloggername?: string;
+    description?: string;
+    link?: string;
+    postdate?: string;
+    title?: string;
   }
 
-  const [GoogleSearchResults, Google_SetSearchResults] = useState<GoogleSearchResults[]>();
+  const [GoogleSearchResults, Google_SetSearchResults] = useState<
+    GoogleSearchResults[] | undefined
+  >();
 
-  const [NaverSearchResults, Naver_SetSearchResults] = useState<NaverSearchResults[]>();
+  const [NaverSearchResults, Naver_SetSearchResults] = useState<NaverSearchResults[] | undefined>();
 
-  const onSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value.trim();
+  const onSearchInputChange = (
+    e: React.ChangeEvent<HTMLInputElement> | React.KeyboardEventHandler<HTMLInputElement>
+  ) => {
+    if (!isSearching) SetIsSearching(true);
+    const query = e?.target?.value.trim();
 
     setSearchQuery(query);
 
@@ -45,6 +53,8 @@ export default function Home() {
       Google_SetSearchResults(undefined);
       Naver_SetSearchResults(undefined);
       debouncedSearch.cancel();
+      SetIsSearching(false);
+
       return;
     }
 
@@ -52,24 +62,22 @@ export default function Home() {
       default:
       case "google":
         Google_GetSearchResults(query);
+
         break;
       case "naver":
         Naver_GetSearchResults(query);
+
         break;
     }
   };
 
   // Google
   const Google_GetSearchResults = (query: String) => {
-    console.log("google");
-
     debouncedSearch(query, "google");
   };
 
   // Naver
   const Naver_GetSearchResults = (query: String) => {
-    console.log("naver");
-
     debouncedSearch(query, "naver");
   };
 
@@ -84,6 +92,8 @@ export default function Home() {
               (response: Response) => {
                 response.json().then((data) => {
                   Google_SetSearchResults(data?.data?.items || undefined);
+                  SetIsSearching(false);
+                  console.log("google");
                 });
               }
             );
@@ -92,7 +102,11 @@ export default function Home() {
             fetch(`http://localhost:3000/api/search?engine=naver&query=${query}`).then(
               (response: Response) => {
                 response.json().then((data) => {
-                  Naver_SetSearchResults(data?.data?.items || undefined);
+                  Naver_SetSearchResults(
+                    data?.data?.items?.length > 0 ? data?.data?.items : undefined
+                  );
+                  console.log("naver");
+                  SetIsSearching(false);
                 });
               }
             );
@@ -101,6 +115,8 @@ export default function Home() {
       }, 500),
     []
   );
+
+  const [isSearching, SetIsSearching] = useState(false);
 
   const nodeRef = useRef(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -114,15 +130,19 @@ export default function Home() {
         <span>Welcome</span>
         <div className={styles.search_bar}>
           <div className={styles.search_engine}>
-            {searchQuery.length < 1 && (
-              <Button
-                onClick={handleClick}
-                sx={{ borderRadius: "var(--searchInputRadius)", padding: "0.5rem" }}
-                disableTouchRipple={true}
-              >
-                엔진
-              </Button>
-            )}
+            <Button
+              onClick={handleClick}
+              sx={{ borderRadius: "var(--searchInputRadius)", padding: "0.5rem" }}
+              disableTouchRipple={true}
+              id="searchEngineBtn"
+            >
+              {searchEngineType == "naver" ? (
+                <span style={{ color: "var(--naver-color)" }}>네이버</span>
+              ) : (
+                <span style={{ color: "var(--google-color)" }}>구글</span>
+              )}
+            </Button>
+
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
               <MenuItem
                 onClick={() => {
@@ -142,6 +162,7 @@ export default function Home() {
               </MenuItem>
             </Menu>
           </div>
+
           <input
             className={styles.search_input}
             tabIndex={0}
@@ -150,50 +171,100 @@ export default function Home() {
               setIsSearchBarFocused(true);
             }}
             onBlur={(e) => {
-              if (e.relatedTarget?.className == styles.search_lists) return;
+              if (e.relatedTarget?.className.includes(styles.search_lists)) return;
               setIsSearchBarFocused(false);
             }}
             onChange={onSearchInputChange}
+            onKeyDown={onSearchInputChange}
             style={{
-              borderBottomLeftRadius:
-                isSearchBarFocused && (GoogleSearchResults || NaverSearchResults) ? 0 : undefined,
-              borderBottomRightRadius:
-                isSearchBarFocused && (GoogleSearchResults || NaverSearchResults) ? 0 : undefined,
+              border:
+                searchEngineType == "naver"
+                  ? "2px solid var(--naver-color)"
+                  : "2px solid var(--google-color)",
             }}
             autoComplete="off"
           />
+
           <div className={styles.search_icon}>
-            <Search color="action" />
+            {!isSearching ? <Search color="action" /> : <HourglassEmptyOutlined color="action" />}
           </div>
-          <Fade in={isSearchBarFocused} timeout={500}>
+          <Fade in={isSearchBarFocused} timeout={200}>
             <div
-              className={styles.search_lists}
+              className={`${styles.search_lists} customScrollbar`}
               tabIndex={0}
               onBlur={(e) => {
-                if (e.relatedTarget?.className == styles.search_input) return;
+                if (e.relatedTarget?.className == (styles.search_input || styles.search_lists))
+                  return;
                 setIsSearchBarFocused(false);
               }}
-              style={{
-                height:
-                  isSearchBarFocused && (GoogleSearchResults || NaverSearchResults)
-                    ? "calc(100vh * 0.5)"
-                    : 0,
-              }}
+              style={
+                isSearchBarFocused && searchQuery
+                  ? {
+                      height: !isSearching ? "calc(100vh * 0.5)" : undefined,
+                      border:
+                        !GoogleSearchResults && !NaverSearchResults && !isSearching
+                          ? "2.5px solid rgba(0,0,0,0.2)"
+                          : "0px solid #fff",
+                    }
+                  : { border: "0px solid #fff" }
+              }
             >
               {searchEngineType == "google" &&
                 GoogleSearchResults &&
                 GoogleSearchResults.map((s, i) => (
                   <Fade in={true} ref={nodeRef} key={i} timeout={500}>
-                    <span>{s?.title}</span>
+                    <section className={styles.GoogleSearchResultsCard}>
+                      <span>{s?.title}</span>
+                    </section>
                   </Fade>
                 ))}
-              {searchEngineType == "naver" &&
-                NaverSearchResults &&
-                NaverSearchResults.map((s, i) => (
-                  <Fade in={true} ref={nodeRef} key={i} timeout={500}>
-                    <span dangerouslySetInnerHTML={{ __html: s?.title || "" }}></span>
-                  </Fade>
-                ))}
+              {searchEngineType == "naver" && NaverSearchResults && (
+                <>
+                  {NaverSearchResults.map((s, i) => (
+                    <Fade in={true} ref={nodeRef} key={i} timeout={500}>
+                      <section className={styles.NaverSearchResultsCard}>
+                        <Link href={{ pathname: s?.link }}>
+                          <div>
+                            <span
+                              id="title"
+                              dangerouslySetInnerHTML={{ __html: s?.title || "" }}
+                            ></span>
+                            <br />
+                            <span
+                              id="description"
+                              dangerouslySetInnerHTML={{ __html: s?.description || "" }}
+                              style={{
+                                fontSize: "0.85rem",
+                                height: s?.description ? undefined : "2rem",
+                              }}
+                            ></span>
+                            <span id="postdate">
+                              {s?.postdate ? dayjs(s?.postdate).format("YYYY / MM / DD") : ""}
+                            </span>
+                          </div>
+                        </Link>
+                      </section>
+                    </Fade>
+                  ))}
+                  <br />
+                </>
+              )}
+              {!isSearching &&
+                GoogleSearchResults == undefined &&
+                NaverSearchResults == undefined && (
+                  <section className={styles.noSearchResults}>
+                    <span>검색 결과가 없습니다.</span>
+                    <span
+                      style={{ fontSize: "0.75rem" }}
+                      onClick={() => {
+                        console.log("d");
+                        setAnchorEl(document.getElementById("searchEngineBtn"));
+                      }}
+                    >
+                      다른 검색 엔진을 사용해보세요.
+                    </span>
+                  </section>
+                )}
             </div>
           </Fade>
         </div>

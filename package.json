@@ -15,6 +15,7 @@
     "@mui/material": "^5.15.0",
     "@types/lodash": "^4.14.202",
     "axios": "^1.6.2",
+    "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
     "next": "14.0.4",
     "react": "^18",
