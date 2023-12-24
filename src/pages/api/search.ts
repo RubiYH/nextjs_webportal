@@ -21,7 +21,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await axios
         .get(
           `
-      https://openapi.naver.com/v1/search/blog.json?query=${encodeURI(query)}&display=10&start=1`,
+      https://openapi.naver.com/v1/search/blog.json?query=${encodeURI(
+        String(query)
+      )}&display=10&start=1`,
           {
             headers: {
               "X-Naver-Client-Id": process.env.NEXT_PUBLIC_NAVER_ID,

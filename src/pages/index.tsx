@@ -47,9 +47,7 @@ export default function Home() {
 
   const [NaverSearchResults, Naver_SetSearchResults] = useState<NaverSearchResults[] | undefined>();
 
-  const onSearchInputChange = (
-    e: React.ChangeEvent<HTMLInputElement> | React.KeyboardEventHandler<HTMLInputElement>
-  ) => {
+  const onSearchInputChange = (e: any) => {
     const query = e?.target?.value.trim();
 
     if (query?.length == 0) {
