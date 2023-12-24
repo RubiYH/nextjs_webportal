@@ -2,13 +2,13 @@ import { AxiosResponse } from "./../../../node_modules/axios/index.d";
 import axios from "axios";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { engine, query } = req.query;
 
   switch (engine) {
     default:
     case "google":
-      fetch(
+      await fetch(
         `https://customsearch.googleapis.com/customsearch/v1?key=${process.env.NEXT_PUBLIC_GOOGLE_CUSTOM_SEARCH_API_KEY}&cx=${process.env.NEXT_PUBLIC_ENGINE_ID}&q=${query}`
       ).then((response: Response) => {
         response.json().then((data) => {
@@ -18,7 +18,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       break;
 
     case "naver":
-      axios
+      await axios
         .get(
           `
       https://openapi.naver.com/v1/search/blog.json?query=${encodeURI(query)}&display=10&start=1`,

@@ -16,7 +16,6 @@
   flex-direction: column;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 1rem;
   margin-bottom: calc(100vh * 0.3);
 }
 
@@ -24,6 +23,13 @@
   font-size: 2rem;
   font-weight: 600;
   font-family: sans-serif;
+  margin-bottom: 2rem;
+}
+
+.errorSection {
+  width: var(--searchInputWidth);
+  display: flex;
+  justify-content: flex-start;
 }
 
 .search_engine {
@@ -39,10 +45,6 @@
 
 .search_bar {
   position: relative;
-  /* display: flex; */
-  flex-wrap: nowrap;
-  flex-direction: row;
-  align-items: center;
 }
 
 .search_input {
@@ -80,7 +82,6 @@
   flex-direction: column;
   flex-wrap: nowrap;
   align-items: flex-start;
-  gap: 16px;
   margin-top: 16px;
   border-radius: calc(var(--searchInputRadius) * 0.8);
   overflow-y: auto;
@@ -97,20 +98,11 @@
 .GoogleSearchResultsCard,
 .NaverSearchResultsCard {
   position: relative;
-  height: 6rem;
   text-overflow: ellipsis;
   word-break: break-all;
   padding: 4px;
+  padding-right: 0;
   width: 100%;
-  background-color: #fff;
-  background-clip: content-box;
-  transition: background-color 0.2s linear !important;
-  border-radius: 16px;
-}
-
-.GoogleSearchResultsCard:hover,
-.NaverSearchResultsCard:hover {
-  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .GoogleSearchResultsCard a,
@@ -121,12 +113,46 @@
 
 .GoogleSearchResultsCard > a > div,
 .NaverSearchResultsCard > a > div {
-  margin: 4px;
+  padding: 4px;
+  background-color: #fff;
+  background-clip: content-box;
+  transition: background-color 0.2s linear !important;
+  border-radius: 16px;
+}
+
+.GoogleSearchResultsCard > a > div > section,
+.NaverSearchResultsCard > a > div > section {
+  padding: 4px;
+}
+
+.GoogleSearchResultsCard > a > div:hover,
+.NaverSearchResultsCard > a > div:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.GoogleSearchResultsCard span[id="title_f"],
+.NaverSearchResultsCard span[id="title_f"] {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.GoogleSearchResultsCard span[id="title"],
+.NaverSearchResultsCard span[id="title"] {
+  display: inline-block;
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: pre;
 }
 
 .GoogleSearchResultsCard span[id="description"],
 .NaverSearchResultsCard span[id="description"] {
   color: rgba(0, 0, 0, 0.6);
+  font-size: 0.85rem;
 }
 
 .GoogleSearchResultsCard span[id="postdate"],
@@ -134,7 +160,7 @@
   position: absolute;
   color: rgba(0, 0, 0, 0.2);
   font-size: 0.8rem;
-  bottom: 4px;
+  line-height: 2rem;
   right: 8px;
 }
 
@@ -148,4 +174,29 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
+}
+
+@media screen and (max-width: 768px) {
+  .container > span {
+    font-size: calc(16px + 4vw);
+    min-width: 100px;
+  }
+
+  .search_input {
+    width: calc(var(--searchInputWidth) * 1.5);
+  }
+
+  .search_lists {
+    width: calc(var(--searchInputWidth) * 1.5);
+  }
+
+  .GoogleSearchResultsCard,
+  .NaverSearchResultsCard {
+    width: 100%;
+  }
+
+  .GoogleSearchResultsCard > a > div,
+  .NaverSearchResultsCard > a > div {
+    width: 100%;
+  }
 }
