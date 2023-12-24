@@ -1,11 +1,11 @@
 import styles from "@/styles/Home.module.css";
 import { HourglassEmptyOutlined, Search } from "@mui/icons-material";
 import { useMemo, useRef, useState } from "react";
-import { Alert, AlertColor, Button, Fade, Menu, MenuItem } from "@mui/material";
+import { Alert, Button, Fade, Menu, MenuItem } from "@mui/material";
 import { debounce } from "lodash";
 import Link from "next/link";
 import dayjs from "dayjs";
-import { ErrorStatus, handleFetchError } from "./modules/handleFetchError";
+import { ErrorStatus, handleFetchError } from "../../modules/handleFetchError";
 
 export default function Home() {
   const [searchEngineType, setSearchEngineType] = useState<string>("google");
