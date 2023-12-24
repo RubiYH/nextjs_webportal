@@ -5,6 +5,10 @@ import type { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { engine, query } = req.query;
 
+  if (!engine || !query) {
+    return res.status(400).json({ data: { error: "잘못된 요청입니다." } });
+  }
+
   switch (engine) {
     default:
     case "google":
